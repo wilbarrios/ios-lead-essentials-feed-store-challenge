@@ -59,24 +59,30 @@ public final class CoreDataFeedStore: FeedStore {
 		let fetchRequest: NSFetchRequest<CDFeedImage> = CDFeedImage.fetchRequest()
 		do {
 			let data = try context.fetch(fetchRequest)
-			
-			var result = [StoredFeedData]()
-			for feed in data {
-				guard let feedData = feed.feed_data, let feedTimestamp = feed.feed_timestamp else { continue }
-				result.append((feedData.array as! [CDFeedImageItem], feedTimestamp))
-			}
-			
-			guard !result.isEmpty else { completion(.empty); return }
-			let mappedData = result.last!.feed.toLocal()
-			let fetchedTimestamp = result.last!.timestamp
-			completion(.found(feed: mappedData, timestamp: fetchedTimestamp))
+			let mappedData = map(data)
+			guard !mappedData.items.isEmpty else { completion(.empty); return }
+			completion(.found(feed: mappedData.items, timestamp: mappedData.timestamp))
 		} catch let error as NSError {
 			completion(.failure(error))
 			print("Could not fetch. \(error), \(error.userInfo)")
 		}
 	}
+	
+	// MARK: Helpers
+	private func map(_ data: [CDFeedImage]) -> (items: [LocalFeedImage], timestamp: Date) {
+		var result = [StoredFeedData]()
+		for feed in data {
+			guard let feedData = feed.feed_data, let feedTimestamp = feed.feed_timestamp else { continue }
+			result.append((feedData.array as! [CDFeedImageItem], feedTimestamp))
+		}
+		guard !result.isEmpty else { return ([], Date())}
+		let mappedData = result.last!.feed.toLocal()
+		let fetchedTimestamp = result.last!.timestamp
+		return (mappedData, fetchedTimestamp)
+	}
 }
 
+// MARK: Mapping extensions
 internal extension Array where Element == CDFeedImageItem {
 	func toLocal() -> [LocalFeedImage] {
 		filter({ $0.image_id != nil && $0.image_url != nil }).map({ LocalFeedImage(id: $0.image_id!, description: $0.image_description, location: $0.image_location, url: $0.image_url! ) })
