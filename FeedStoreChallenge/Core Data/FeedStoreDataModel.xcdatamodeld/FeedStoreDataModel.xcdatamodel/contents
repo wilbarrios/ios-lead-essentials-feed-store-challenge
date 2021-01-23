@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17511" systemVersion="19H15" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CDFeedImage" representedClassName="CDFeedImage" syncable="YES">
+        <attribute name="feed_timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="feed_data" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDFeedImageItem"/>
+    </entity>
+    <entity name="CDFeedImageItem" representedClassName="CDFeedImageItem" syncable="YES">
+        <attribute name="image_description" optional="YES" attributeType="String"/>
+        <attribute name="image_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="image_location" optional="YES" attributeType="String"/>
+        <attribute name="image_url" optional="YES" attributeType="URI"/>
+    </entity>
+    <elements>
+        <element name="CDFeedImageItem" positionX="-63" positionY="-18" width="128" height="103"/>
+        <element name="CDFeedImage" positionX="-54" positionY="18" width="128" height="73"/>
+    </elements>
+</model>
