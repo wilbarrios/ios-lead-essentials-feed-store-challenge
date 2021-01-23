@@ -10,7 +10,6 @@
 import Foundation
 import CoreData
 
-@objc(CDFeedImageItem)
 public class CDFeedImageItem: NSManagedObject {
 
 }

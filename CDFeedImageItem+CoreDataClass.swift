@@ -1,5 +1,5 @@
 //
-//  CDFeedImage+CoreDataClass.swift
+//  CDFeedImageItem+CoreDataClass.swift
 //  FeedStoreChallenge
 //
 //  Created by Wilmer Barrios on 23/01/21.
@@ -10,6 +10,7 @@
 import Foundation
 import CoreData
 
-public class CDFeedImage: NSManagedObject {
+@objc(CDFeedImageItem)
+public class CDFeedImageItem: NSManagedObject {
 
 }

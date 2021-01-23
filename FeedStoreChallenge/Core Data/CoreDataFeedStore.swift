@@ -7,20 +7,93 @@
 //
 
 import Foundation
+import CoreData
 
 public final class CoreDataFeedStore: FeedStore {
 	
-	public init() {}
+	typealias StoredFeedData = (feed: [CDFeedImageItem], timestamp: Date)
+	
+	private let container: NSPersistentContainer
+	private let context: NSManagedObjectContext
+	private let modelName = "FeedStoreDataModel"
+	private let storeURL: URL!
+	
+	public init(storeURL: URL) throws {
+		
+		self.storeURL = storeURL
+		
+		guard let modelURL = Bundle(for: CoreDataFeedStore.self).url(forResource: modelName, withExtension:"momd"),
+			  let model = NSManagedObjectModel(contentsOf: modelURL) else {
+			throw NSError()
+		}
+		
+		let description = NSPersistentStoreDescription(url: storeURL)
+		container = NSPersistentContainer(name: modelName, managedObjectModel: model)
+		container.persistentStoreDescriptions = [description]
+		
+		var loadError: Swift.Error?
+		container.loadPersistentStores { loadError = $1 }
+		try loadError.map { throw $0 }
+		
+		context = container.newBackgroundContext()
+	}
 	
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		
 	}
 	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		
+		let feed_data: [CDFeedImageItem] = feed.toCD(context: context)
+		let storeFeed = CDFeedImage(context: context)
+		storeFeed.feed_data = NSOrderedSet(array: feed_data)
+		storeFeed.feed_timestamp = timestamp
+		do {
+			try context.save()
+			completion(nil)
+		} catch let e {
+			completion(e)
+		}
 	}
 	
 	public func retrieve(completion: @escaping RetrievalCompletion) {
-		completion(.empty)
+		let fetchRequest: NSFetchRequest<CDFeedImage> = CDFeedImage.fetchRequest()
+		do {
+			let data = try context.fetch(fetchRequest)
+			
+			var result = [StoredFeedData]()
+			for feed in data {
+				guard let feedData = feed.feed_data, let feedTimestamp = feed.feed_timestamp else { continue }
+				result.append((feedData.array as! [CDFeedImageItem], feedTimestamp))
+			}
+			
+			guard !result.isEmpty else { completion(.empty); return }
+			let mappedData = result.last!.feed.toLocal()
+			let fetchedTimestamp = result.last!.timestamp
+			completion(.found(feed: mappedData, timestamp: fetchedTimestamp))
+		} catch let error as NSError {
+			completion(.failure(error))
+			print("Could not fetch. \(error), \(error.userInfo)")
+		}
+	}
+}
+
+internal extension Array where Element == CDFeedImageItem {
+	func toLocal() -> [LocalFeedImage] {
+		filter({ $0.image_id != nil && $0.image_url != nil }).map({ LocalFeedImage(id: $0.image_id!, description: $0.image_description, location: $0.image_location, url: $0.image_url! ) })
+	}
+}
+
+internal extension Array where Element == LocalFeedImage {
+	func toCD(context: NSManagedObjectContext) -> [CDFeedImageItem] {
+		map(
+			{ local in
+				let n = CDFeedImageItem(context: context)
+				n.image_description = local.description
+				n.image_id = local.id
+				n.image_location = local.location
+				n.image_url = local.url
+				return n
+			}
+		)
 	}
 }

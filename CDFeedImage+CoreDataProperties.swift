@@ -18,7 +18,7 @@ extension CDFeedImage {
     }
 
     @NSManaged public var feed_timestamp: Date?
-	@NSManaged public var feed_data: NSOrderedSet?
+    @NSManaged public var feed_data: NSOrderedSet?
 
 }
 
