@@ -27,20 +27,20 @@ class FeedStoreIntegrationTests: XCTestCase {
 	}
 	
 	func test_retrieve_deliversEmptyOnEmptyCache() {
-		        let sut = makeSUT()
+		let sut = makeSUT()
 		
-		        expect(sut, toRetrieve: .empty)
+		expect(sut, toRetrieve: .empty)
 	}
 	
 	func test_retrieve_deliversFeedInsertedOnAnotherInstance() {
-		//        let storeToInsert = makeSUT()
-		//        let storeToLoad = makeSUT()
-		//        let feed = uniqueImageFeed()
-		//        let timestamp = Date()
-		//
-		//        insert((feed, timestamp), to: storeToInsert)
-		//
-		//        expect(storeToLoad, toRetrieve: .found(feed: feed, timestamp: timestamp))
+		let storeToInsert = makeSUT()
+		let storeToLoad = makeSUT()
+		let feed = uniqueImageFeed()
+		let timestamp = Date()
+		
+		insert((feed, timestamp), to: storeToInsert)
+		
+		expect(storeToLoad, toRetrieve: .found(feed: feed, timestamp: timestamp))
 	}
 	
 	func test_insert_overridesFeedInsertedOnAnotherInstance() {
@@ -72,17 +72,27 @@ class FeedStoreIntegrationTests: XCTestCase {
 	// - MARK: Helpers
 	
 	private func makeSUT() -> FeedStore {
-		let storeURL = URL(fileURLWithPath: "/dev/null")
-		let sut = try! CoreDataFeedStore(storeURL: storeURL)
+		let sut = try! CoreDataFeedStore(storeURL: makeStoreURL())
 		return sut
 	}
 	
+	private func makeStoreURL() -> URL {
+		let cachesDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+		let storeURL = cachesDirectory.appendingPathComponent("\(type(of: self)).store")
+		return storeURL
+	}
+	
+	
+	private func deleteArtifacts() {
+		try? FileManager.default.removeItem(at: makeStoreURL())
+	}
+	
 	private func setupEmptyStoreState() {
-		
+		deleteArtifacts()
 	}
 	
 	private func undoStoreSideEffects() {
-		
+		deleteArtifacts()
 	}
 	
 }
