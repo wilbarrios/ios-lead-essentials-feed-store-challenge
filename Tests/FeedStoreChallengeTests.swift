@@ -101,7 +101,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 	private func testMemoryLeaks(_ instance: AnyObject, file: StaticString = #file, line: UInt = #line) {
 		addTeardownBlock {
-			 [weak instance] in
+			[weak instance] in
 			XCTAssertNil(instance, "Assertion is not nil, possible memory leak", file: file, line: line)
 		}
 	}

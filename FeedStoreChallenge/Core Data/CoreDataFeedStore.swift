@@ -71,8 +71,6 @@ public final class CoreDataFeedStore: FeedStore {
 	public func retrieve(completion: @escaping RetrievalCompletion) {
 		let context = self.context
 		context.perform {
-			[weak self] in
-			guard let self = self else { return }
 			let fetchRequest: NSFetchRequest<CDFeedImage> = CDFeedImage.fetchRequest()
 			do {
 				let data = try context.fetch(fetchRequest)
