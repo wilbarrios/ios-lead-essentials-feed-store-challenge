@@ -56,15 +56,15 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	func test_insert_overridesPreviouslyInsertedCacheValues() {
-		//		let sut = makeSUT()
-		//
-		//		assertThatInsertOverridesPreviouslyInsertedCacheValues(on: sut)
+				let sut = makeSUT()
+		
+				assertThatInsertOverridesPreviouslyInsertedCacheValues(on: sut)
 	}
 	
 	func test_delete_deliversNoErrorOnEmptyCache() {
-		//		let sut = makeSUT()
-		//
-		//		assertThatDeleteDeliversNoErrorOnEmptyCache(on: sut)
+				let sut = makeSUT()
+		
+				assertThatDeleteDeliversNoErrorOnEmptyCache(on: sut)
 	}
 	
 	func test_delete_hasNoSideEffectsOnEmptyCache() {
