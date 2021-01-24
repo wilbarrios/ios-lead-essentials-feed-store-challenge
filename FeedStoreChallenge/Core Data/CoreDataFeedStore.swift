@@ -39,39 +39,50 @@ public final class CoreDataFeedStore: FeedStore {
 	}
 	
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDFeedImage.fetchRequest()
-		let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-		do {
-			try context.execute(batchDeleteRequest)
-			completion(nil)
-		} catch let e {
-			completion(e)
+		let context = self.context
+		context.perform {
+			let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDFeedImage.fetchRequest()
+			let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+			do {
+				try context.execute(batchDeleteRequest)
+				completion(nil)
+			} catch let e {
+				completion(e)
+			}
 		}
 	}
 	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		let feed_data: [CDFeedImageItem] = feed.toCD(context: context)
-		let storeFeed = CDFeedImage(context: context)
-		storeFeed.feed_data = NSOrderedSet(array: feed_data)
-		storeFeed.feed_timestamp = timestamp
-		do {
-			try context.save()
-			completion(nil)
-		} catch let e {
-			completion(e)
+		let context = self.context
+		context.perform {
+			let feed_data: [CDFeedImageItem] = feed.toCD(context: context)
+			let storeFeed = CDFeedImage(context: context)
+			storeFeed.feed_data = NSOrderedSet(array: feed_data)
+			storeFeed.feed_timestamp = timestamp
+			do {
+				try context.save()
+				completion(nil)
+			} catch let e {
+				completion(e)
+			}
 		}
 	}
 	
 	public func retrieve(completion: @escaping RetrievalCompletion) {
-		let fetchRequest: NSFetchRequest<CDFeedImage> = CDFeedImage.fetchRequest()
-		do {
-			let data = try context.fetch(fetchRequest)
-			let mappedData = map(data)
-			guard !mappedData.items.isEmpty else { completion(.empty); return }
-			completion(.found(feed: mappedData.items, timestamp: mappedData.timestamp))
-		} catch let error as NSError {
-			completion(.failure(error))
-			print("Could not fetch. \(error), \(error.userInfo)")
+		let context = self.context
+		context.perform {
+			[weak self] in
+			guard let self = self else { return }
+			let fetchRequest: NSFetchRequest<CDFeedImage> = CDFeedImage.fetchRequest()
+			do {
+				let data = try context.fetch(fetchRequest)
+				let mappedData = self.map(data)
+				guard !mappedData.items.isEmpty else { completion(.empty); return }
+				completion(.found(feed: mappedData.items, timestamp: mappedData.timestamp))
+			} catch let error as NSError {
+				completion(.failure(error))
+				print("Could not fetch. \(error), \(error.userInfo)")
+			}
 		}
 	}
 	
