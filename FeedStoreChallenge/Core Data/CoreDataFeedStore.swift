@@ -39,7 +39,14 @@ public final class CoreDataFeedStore: FeedStore {
 	}
 	
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		completion(nil)
+		let fetchRequest: NSFetchRequest<NSFetchRequestResult> = CDFeedImage.fetchRequest()
+		let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+		do {
+			try context.execute(batchDeleteRequest)
+			completion(nil)
+		} catch let e {
+			completion(e)
+		}
 	}
 	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
