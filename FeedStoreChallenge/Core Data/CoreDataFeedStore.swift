@@ -13,14 +13,10 @@ public final class CoreDataFeedStore: FeedStore {
 	
 	typealias StoredFeedData = (feed: [CDFeedImageItem], timestamp: Date)
 	
-	private let container: NSPersistentContainer
 	private let context: NSManagedObjectContext
 	private let modelName = "FeedStoreDataModel"
-	private let storeURL: URL!
 	
 	public init(storeURL: URL) throws {
-		
-		self.storeURL = storeURL
 		
 		guard let modelURL = Bundle(for: CoreDataFeedStore.self).url(forResource: modelName, withExtension:"momd"),
 			  let model = NSManagedObjectModel(contentsOf: modelURL) else {
@@ -28,7 +24,7 @@ public final class CoreDataFeedStore: FeedStore {
 		}
 		
 		let description = NSPersistentStoreDescription(url: storeURL)
-		container = NSPersistentContainer(name: modelName, managedObjectModel: model)
+		let container = NSPersistentContainer(name: modelName, managedObjectModel: model)
 		container.persistentStoreDescriptions = [description]
 		
 		var loadError: Swift.Error?
