@@ -76,8 +76,8 @@ public final class CoreDataFeedStore: FeedStore {
 	private func map(_ data: [CDFeedImage]) -> (items: [LocalFeedImage], timestamp: Date) {
 		var result = [StoredFeedData]()
 		for feed in data {
-			guard let feedData = feed.feed_data, let feedTimestamp = feed.feed_timestamp else { continue }
-			result.append((feedData.array as! [CDFeedImageItem], feedTimestamp))
+			guard let feedData = feed.feed_data.array as? [CDFeedImageItem] else { continue }
+			result.append((feedData, feed.feed_timestamp))
 		}
 		guard !result.isEmpty else { return ([], Date())}
 		let mappedData = result.last!.feed.toLocal()
@@ -89,7 +89,7 @@ public final class CoreDataFeedStore: FeedStore {
 // MARK: Mapping extensions
 internal extension Array where Element == CDFeedImageItem {
 	func toLocal() -> [LocalFeedImage] {
-		filter({ $0.image_id != nil && $0.image_url != nil }).map({ LocalFeedImage(id: $0.image_id!, description: $0.image_description, location: $0.image_location, url: $0.image_url! ) })
+		map({ LocalFeedImage(id: $0.image_id, description: $0.image_description, location: $0.image_location, url: $0.image_url ) })
 	}
 }
 
