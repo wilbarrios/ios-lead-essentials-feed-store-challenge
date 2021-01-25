@@ -62,9 +62,9 @@ public final class CoreDataFeedStore: FeedStore {
 			let fetchRequest: NSFetchRequest<CDFeedImage> = CDFeedImage.fetchRequest()
 			do {
 				let data = try context.fetch(fetchRequest)
-				let mappedData = self.map(data)
-				guard !mappedData.items.isEmpty else { completion(.empty); return }
-				completion(.found(feed: mappedData.items, timestamp: mappedData.timestamp))
+				guard let feed = data.first else { return completion(.empty) }
+				let (items, timestamp) = CoreDataFeedStore.map(feed)
+				completion(.found(feed: items, timestamp: timestamp))
 			} catch let error as NSError {
 				completion(.failure(error))
 			}
@@ -72,16 +72,9 @@ public final class CoreDataFeedStore: FeedStore {
 	}
 	
 	// MARK: Helpers
-	private func map(_ data: [CDFeedImage]) -> (items: [LocalFeedImage], timestamp: Date) {
-		var result = [StoredFeedData]()
-		for feed in data {
-			guard let feedData = feed.feed_data.array as? [CDFeedImageItem] else { continue }
-			result.append((feedData, feed.feed_timestamp))
-		}
-		guard !result.isEmpty else { return ([], Date())}
-		let mappedData = result.last!.feed.toLocal()
-		let fetchedTimestamp = result.last!.timestamp
-		return (mappedData, fetchedTimestamp)
+	private static func map(_ feed: CDFeedImage) -> (items: [LocalFeedImage], timestamp: Date) {
+		guard let feedData = feed.feed_data.array as? [CDFeedImageItem] else { return ([], Date()) }
+		return (feedData.toLocal(), feed.feed_timestamp)
 	}
 }
 
