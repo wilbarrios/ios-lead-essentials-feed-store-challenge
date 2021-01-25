@@ -67,7 +67,6 @@ public final class CoreDataFeedStore: FeedStore {
 				completion(.found(feed: mappedData.items, timestamp: mappedData.timestamp))
 			} catch let error as NSError {
 				completion(.failure(error))
-				print("Could not fetch. \(error), \(error.userInfo)")
 			}
 		}
 	}
