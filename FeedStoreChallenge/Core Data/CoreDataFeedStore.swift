@@ -62,7 +62,7 @@ public final class CoreDataFeedStore: FeedStore {
 			let fetchRequest: NSFetchRequest<CDFeedImage> = CDFeedImage.fetchRequest()
 			do {
 				let data = try context.fetch(fetchRequest)
-				guard let feed = data.first else { return completion(.empty) }
+				guard let feed = data.last else { return completion(.empty) }
 				let (items, timestamp) = CoreDataFeedStore.map(feed)
 				completion(.found(feed: items, timestamp: timestamp))
 			} catch let error as NSError {
