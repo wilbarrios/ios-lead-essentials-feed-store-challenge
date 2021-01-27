@@ -38,7 +38,7 @@ public final class CoreDataFeedStore: FeedStore {
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		let context = self.context
 		context.perform {
-			let feed_data: [CDFeedImageItem] = feed.toCD(context: context)
+			let feed_data = feed.toCD(context: context)
 			let storeFeed = CDFeedImage(context: context)
 			storeFeed.feed_data = NSOrderedSet(array: feed_data)
 			storeFeed.feed_timestamp = timestamp
