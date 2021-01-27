@@ -15,13 +15,8 @@ public final class CoreDataFeedStore: FeedStore {
 	
 	private let context: NSManagedObjectContext
 	
-	public init(contextBuilder: CDContextBuilder) throws {
-		switch contextBuilder.build() {
-		case .success(let context):
-			self.context = context
-		case .failure(let e):
-			throw e
-		}
+	public init(storeURL: URL) throws {
+		self.context = try CoreDataInstanceBuilder(storeURL: storeURL).build()
 	}
 	
 	// MARK: FeedStore extension

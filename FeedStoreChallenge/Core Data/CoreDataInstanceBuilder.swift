@@ -9,22 +9,17 @@
 import Foundation
 import CoreData
 
-public enum CDContextBuildResult {
-	case success(NSManagedObjectContext)
-	case failure(Error)
-}
-
-public protocol CDContextBuilder {
-	func build() -> CDContextBuildResult
-}
-
-public final class CoreDataInstanceBuilder {
+internal final class CoreDataInstanceBuilder {
 	
 	private static let modelName = "FeedStoreDataModel"
-	let storeURL: URL
+	private let storeURL: URL
 	
-	public init(storeURL: URL) {
+	internal init(storeURL: URL) {
 		self.storeURL = storeURL
+	}
+	
+	internal func build() throws -> NSManagedObjectContext {
+		return try makeCDContext(storeURL: storeURL)
 	}
 	
 	// MARK: helpers
@@ -54,16 +49,5 @@ public final class CoreDataInstanceBuilder {
 		let container = NSPersistentContainer(name: CoreDataInstanceBuilder.modelName, managedObjectModel: model)
 		container.persistentStoreDescriptions = [description]
 		return container
-	}
-}
-
-extension CoreDataInstanceBuilder: CDContextBuilder {
-	public func build() -> CDContextBuildResult {
-		do {
-			let context = try makeCDContext(storeURL: self.storeURL)
-			return .success(context)
-		} catch let e {
-			return .failure(e)
-		}
 	}
 }

@@ -72,8 +72,7 @@ class FeedStoreIntegrationTests: XCTestCase {
 	// - MARK: Helpers
 	
 	private func makeSUT() -> FeedStore {
-		let contextBuilder = CoreDataInstanceBuilder(storeURL: makeStoreURL())
-		let sut = try! CoreDataFeedStore(contextBuilder: contextBuilder)
+		let sut = try! CoreDataFeedStore(storeURL: makeStoreURL())
 		return sut
 	}
 	
