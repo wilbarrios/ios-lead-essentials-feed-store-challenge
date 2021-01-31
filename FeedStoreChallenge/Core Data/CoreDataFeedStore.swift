@@ -11,8 +11,6 @@ import CoreData
 
 public final class CoreDataFeedStore: FeedStore {
 	
-	typealias StoredFeedData = (feed: [CDFeedImageItem], timestamp: Date)
-	
 	private let context: NSManagedObjectContext
 	
 	public init(storeURL: URL) throws {
